@@ -1,0 +1,13 @@
+CC=gcc
+CFLAGS=-g3 -std=c99 -pedantic -Wall
+
+all: encode decode
+encode: lzw.o code.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+decode: encode
+	ln -f encode decode
+
+clean:
+	$(RM) encode decode *.o
+
