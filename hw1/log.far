@@ -1,0 +1,31 @@
+ESTIMATE of time to complete assignment: 15 hours
+
+	Start	Time	
+Date	Time	Spent	Work Completed
+----	-----	----	-------------
+8/29	20:30	1:30	Read assignment and looked up library functions and played with Hwk1/Far
+8/30 	21:00 	2:00 	Began implementing method for traversing archive file
+9/1	16:15 	0:45 	Added stat function, worked on farReplaceOrInsert  
+9/1	21:00 	1:00	Tried to refactor code to make it more streamlined
+9/2	15:45	0:20	Working on integrating other flags for Far
+9/2	17:30	0:20	Continued adding other flags
+9/2	20:20	4:00	Added recursive directory searching. Incomplete.
+9/6	19:30	2:00	Removed switch statements and created smaller functions. 
+9/8	14:15	2:00	Created functions to clean and expand input names array. Changed input of readArchive from array to stack
+9/8	20:00	2:00	Removed functions to clean and expand input names array. Wrote more delete functionality and extract functionality.
+9/9	11:00	1:00	Made extractFileRecurse
+9/9	13:45	0:45	Worked on extractFileRecurse
+9/9	21:30	3:30	Added ability to check prefixes of paths. Fixed r functionality. Made extract work. Fixed delete.
+9/11	13:00	1:00	Fixed minor bugs. Mollified valgrind to some extent. Dealt with some file corruption.
+9/11	17:00	0:45	Working on valgrind
+9/11	19:30	1:00	Fixed reference of uninitialized value
+9/11	22:00	1:00	Pass all test cases
+9/12	10:00	0:45	Worked on handling corrupted files
+9/16	12:45	1:00	Handled edge case of file not able to open. Updated log file. Wrote documentation
+9/17	1:30	2:15	Wrote more documentation. Handled more edge cases.
+9/17	7:30	0:30	Added readdir error reporting.
+		----
+		29:35	TOTAL time spent
+
+The hardest part of this assignment was dealing with all of the cases in a unified way. There were a lot of edge cases resulting in different combinations of parameters, and it was challenging to address them while still reusing as much code as possible. Another challenge was handling both directories and files in the program, as that contributed to the multiplicity of edge cases that had to be addressed. Finally, ensuring that cleanup was consistent and always worked was tricky. In general, thinking up my own test cases for the program was rather hard, as was keeping all the requirements of the spec in mind, since the spec was quite long. I also started coding very shortly after reading through the spec once, and some more planning, perhaps based on the given test cases, would have allowed the code to be more organized and would have prevented me from erasing and rewriting a lot of code. It turned out that I sometimes had to add a feature that required me to rewrite a significant portion of what I had written before.
+

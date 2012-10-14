@@ -1,0 +1,7 @@
+#!/bin/awk -f
+function convert(t) {
+    split(t,Arr,":")
+    return Arr[1]*60+Arr[2]*60
+    }
+{ sum+=convert($2) }
+END {print sum}

@@ -1,0 +1,17 @@
+8/29	8:30	1:30	Read assignment and looked up library functions and played with				Hwk1/Far
+8/30 	9:00 	2:00 	Began implementing method for traversing archive file
+9/1	4:15 	0:45 	Added stat function, worked on farReplaceOrInsert  
+9/1	9:00 	1:00	Tried to refactor code to make it more streamlined
+9/2	3:45	0:20	Working on integrating other flags for Far
+9/2	5:30	0:20	Continued adding other flags
+9/2	8:20	4:00	Added recursive directory searching. Incomplete.
+9/6	7:30	2:00	Removed switch statements and created smaller functions. 
+9/8	2:15	2:00	Created functions to clean and expand input names array. Changed			input of readArchive from array to stack
+9/8	8:00	2:00	Removed functions to clean and expand input names array. Wrote 				      	 	     more delete functionality and extract functionality.
+9/9	11:00	1:00	Made extractFileRecurse
+9/9	1:45	0:45	Worked on extractFileRecurse
+9/9	8:30	3:30	Added ability to check prefixes of paths. Fixed r functionality. Made extract work. Fixed delete.
+9/11	1:00	1:00	Fixed minor bugs. Mollified valgrind to some extent. Dealt with       	      some file corruption.
+9/11	5:00	0:45	Working on valgrind
+9/11	7:30	1:00	Fixed reference of uninitialized value
+9/11	10:00	1:00	Pass all test cases
