@@ -1,0 +1,8 @@
+#!/bin/csh -f
+set RUN = "/usr/local/bin/valgrind -v"
+
+# encode < FILE | decode | cmp - FILE
+
+#onintr cleanup
+#cleanup:
+#/bin/rm -rf $ARKIV

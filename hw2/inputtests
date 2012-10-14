@@ -1,0 +1,94 @@
+#!/bin/csh -f
+set RUN = "/usr/local/bin/valgrind -q --dsymutil=yes"
+set FILES = /Users/kevin/Programs/cs323/hw2/files
+set ENC = "./encode"
+set DEC = "./decode"
+set EOUT  = /Users/kevin/Programs/cs323/hw2/files/tmp/lzw.e.$$
+set DOUT  = /Users/kevin/Programs/cs323/hw2/files/tmp/lzw.d.$$
+
+#bad flags
+
+echo Bad flags for encode: 5
+$RUN ./encode -r
+$RUN ./encode -a
+$RUN ./encode -me
+$RUN ./encode -pe
+$RUN ./encode das
+echo
+
+#bad args
+echo Bad args for encode: 5
+$RUN ./encode -m
+$RUN ./encode -m -1
+$RUN ./encode -m 0
+$RUN ./encode -m -e
+$RUN ./encode -m -m 12
+echo 5 more
+$RUN ./encode -m aa12d
+$RUN ./encode -m "12 12"
+$RUN ./encode -p
+$RUN ./encode -p -1
+$RUN ./encode -p 0
+echo 5 more
+$RUN ./encode -p "214 1"
+$RUN ./encode -p -e
+$RUN ./encode -p -p 12
+$RUN ./encode -p 02avb
+$RUN ./encode -p ""
+echo 5 more
+$RUN $ENC -p a
+$RUN $ENC -p 10000000000000000000
+$RUN $ENC -p -1000000000000000
+$RUN $ENC -p -1000000000000000000
+$RUN $ENC -p -10000000000000000000000
+echo
+
+echo Multiple bad flags: 2
+$RUN ./encode -e -p 100 -m asd -e -p 10 -m 20
+$RUN ./encode -e -p 100 -m 23 -e -p -2 -m 20
+echo
+
+#echo Good flags for encode: 5
+#$RUN $ENC < $FILES/blank.in | cmp - $FILES/flag1.in
+#$RUN $ENC -m 8 -e -p 1000 < $FILES/blank.in | cmp - $FILES/flag2.in
+#$RUN $ENC -m 9 -p 1 -p 1000000000000000000 < $FILES/blank.in | cmp - $FILES/flag3.in
+#$RUN $ENC -m 24 -p 1 -e < $FILES/blank.in | cmp - $FILES/flag4.in
+#$RUN $ENC -m 25 -p 5555555 < $FILES/blank.in | cmp - $FILES/flag5.in
+#echo Done
+#echo
+
+echo Bad args for decode: 5
+$RUN $DEC < $FILES/bada.in
+$RUN $DEC < $FILES/badb.in
+$RUN $DEC < $FILES/badc.in
+$RUN $DEC < $FILES/badd.in
+$RUN $DEC < $FILES/bade.in
+echo 5 more
+$RUN $DEC < $FILES/badf.in
+$RUN $DEC < $FILES/badg.in
+$RUN $DEC < $FILES/badh.in
+$RUN $DEC < $FILES/badi.in
+$RUN $DEC < $FILES/blank.in
+echo 5 more
+$RUN $DEC < $FILES/specialchars.in
+$RUN $DEC -p
+$RUN $DEC d
+$RUN $DEC e
+$RUN $DEC 1
+echo 4 more
+$RUN $DEC -1
+$RUN $DEC -p 100
+$RUN $DEC -p 10
+$RUN $DEC -m 10
+echo
+
+
+#$RUN ./encode $EFLAG < $FILE >! $EOUT
+#$RUN ./decode        < $EOUT >! $DOUT
+#/usr/bin/cmp - $FILE < $DOUT
+
+# encode < FILE | decode | cmp - FILE
+
+#onintr cleanup
+#cleanup:
+#/bin/rm -rf $ARKIV

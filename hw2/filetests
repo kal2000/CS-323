@@ -1,0 +1,28 @@
+#!/bin/csh -f
+set RUN = "/usr/bin/time /usr/local/bin/valgrind -q --dsymutil=yes"
+set FILES = /Users/kevin/Programs/cs323/hw2/files
+set ENC = "./encode"
+set DEC = "./decode"
+set EOUT  = /Users/kevin/Programs/cs323/hw2/tmp/lzw.e
+set DOUT  = /Users/kevin/Programs/cs323/hw2/tmp/lzw.d
+
+#iterate over flags
+foreach file ($FILES/*)
+	echo Testing with $file
+	foreach flag ("" "-p 100" "-e" "-m 9")
+		echo Flag is \"$flag\"
+		$RUN $ENC < $file > $EOUT
+		$RUN $DEC < $EOUT | cmp - $file
+		#cmp ./encode.log ./decode.log
+		echo "                  Done"
+	end
+end
+
+#think of more flags to iterate over
+#"" "-e" "-m 9" "-m 14" "-m 24" "-p 1" "-p 200" "-p 1000" "-p 8000"
+
+# encode < FILE | decode | cmp - FILE
+
+#onintr cleanup
+#cleanup:
+#/bin/rm -rf 

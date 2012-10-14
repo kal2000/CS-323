@@ -1,0 +1,24 @@
+#!/bin/csh -f
+set RUN = "/usr/bin/time"
+set BIGFILES = /Users/kevin/Programs/cs323/hw2/files-big
+set ENC = "./encode"
+set DEC = "./decode"
+set EOUT  = /Users/kevin/Programs/cs323/hw2/tmp/lzw.e
+set DOUT  = /Users/kevin/Programs/cs323/hw2/tmp/lzw.d
+
+#iterate over flags
+foreach file ($BIGFILES/*)
+	echo Testing with \"$file\"
+	foreach flag ("" "-p 100" "-e" "-m 9" "-e -p 20000 -m 24")
+		echo Flag is \"$flag\"
+		echo Encoding
+		$RUN $ENC $flag < $file > $EOUT
+		echo Decoding
+		$RUN $DEC < $EOUT | cmp - $file
+		echo "                  Done"
+	end
+end
+
+#onintr cleanup
+#cleanup:
+#/bin/rm -rf 

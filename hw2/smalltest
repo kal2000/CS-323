@@ -1,0 +1,22 @@
+#!/bin/csh -f
+set RUN = "/usr/local/bin/valgrind -q --dsymutil=yes"
+set FILES = /Users/kevin/Programs/cs323/hw2/files
+set ENC = "./encode"
+set DEC = "./decode"
+set EOUT  = /Users/kevin/Programs/cs323/hw2/files/tmp/lzw.e.$$
+set DOUT  = /Users/kevin/Programs/cs323/hw2/files/tmp/lzw.d.$$
+
+cd logs
+foreach file (*)
+	diff $file "../logs2/$file"
+end
+
+#$RUN ./encode $EFLAG < $FILE >! $EOUT
+#$RUN ./decode        < $EOUT >! $DOUT
+#/usr/bin/cmp - $FILE < $DOUT
+
+# encode < FILE | decode | cmp - FILE
+
+#onintr cleanup
+#cleanup:
+#/bin/rm -rf $ARKIV

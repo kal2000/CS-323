@@ -1,0 +1,18 @@
+#!/bin/csh -f
+set RUN = "/usr/local/bin/valgrind -q --dsymutil=yes"
+set FILES = /Users/kevin/Programs/cs323/hw2/files
+set ENC = "./encode"
+set DEC = "./decode"
+set EOUT  = /Users/kevin/Programs/cs323/hw2/files/tmp/lzw.e
+set DOUT  = /Users/kevin/Programs/cs323/hw2/files/tmp/lzw.d
+
+./inputtests
+./mflagtests
+./eflagtests
+./pflagtests
+./filetests
+./bigfiletests
+
+#onintr cleanup
+#cleanup:
+#/bin/rm -rf $ARKIV

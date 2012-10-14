@@ -1,0 +1,9 @@
+ls#!/bin/csh -f
+set RUN = "/usr/local/bin/valgrind -v"
+set FILES = /Users/kevin/Programs/cs323/hw2/files
+
+# encode < FILE | decode | cmp - FILE
+
+#onintr cleanup
+#cleanup:
+#/bin/rm -rf $ARKIV

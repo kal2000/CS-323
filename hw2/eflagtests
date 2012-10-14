@@ -1,0 +1,30 @@
+#!/bin/csh -f
+set RUN = "/usr/bin/time /usr/local/bin/valgrind -q --dsymutil=yes"
+set FILES = /Users/kevin/Programs/cs323/hw2/files
+set ENC = "./encode"
+set DEC = "./decode"
+set EOUT  = /Users/kevin/Programs/cs323/hw2/tmp/lzw.e
+set DOUT  = /Users/kevin/Programs/cs323/hw2/tmp/lzw.d
+
+echo Testing flags with a.in and specialchars.in
+foreach flag ("" "-e" "-e -e -e -e -e" "-m 9 -e" "-m 13 -e" "-e -m 24"\
+"-e -m 50 -m 10 -e")
+	foreach file (a.in specialchars.in)
+		echo Testing $file with flags set to $flag
+		echo Encoding
+		$RUN $ENC $flag < $FILES/$file > $EOUT
+		echo Decoding
+		$RUN $DEC < $EOUT | cmp - $FILES/$file
+		#cmp ./encode.log ./decode.log
+	end
+end
+echo Finished testing flags
+echo
+
+
+
+# encode < FILE | decode | cmp - FILE
+
+#onintr cleanup
+#cleanup:
+#/bin/rm -rf $ARKIV
