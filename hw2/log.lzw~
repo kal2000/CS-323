@@ -1,0 +1,29 @@
+ESTIMATE of time to complete assignment: 40 hours
+
+9/20	10:30	2:00  Read spec, planned input, wrote input verifier
+9/20	21:30	1:30  Begin implementing hash table
+9/21  22:30	2:00  Continued implementing hash table. Thought about pruning.
+9/27  19:30	2:15  Implemented hashArray (has code-searching functionality). Added framework for pruning. Added intstr struct and related methods. Added stack.
+9/28  0:00 	1:15  Fixed intstr and hashArray methods. Fixed how codes are entered into hash. Added sanity check function.
+9/29  12:00	4:15  Enhanced sanity check. Fixed lastUse time. Fixed bug where prune deleted hashArray.
+9/30  0:00  2:30   Starting implementing encode and decode. Synchronized encode and decode.
+9/30  11:20 0:15   Encode passes its parameters to decode.
+9/30  12:00 3:00   Working on passing parameters. Wrote test scripts.
+9/30  20:00 0:30   Fixed -e flag
+9/30  22:00 4:15   Working on pruning. Bug fixing for pruning.
+10/1  16:30 1:30   Mapped out logical flow of LZW and changed -e flag functionality
+10/1  20:00 4:00   Changed -p flag to eliminate some bugs and added INCR_NBITS functionality. Fixed desynchronized bug in -p flag.
+10/2  17:00  0:45   Fixed valgrind bug in handleSpecialCodes. Modified prune to run slightly faster.
+10/2  19:00  0:15   Put in stage 2 and stage 3. Pass all public tests!
+10/2  21:15  2:00   Talked to TA and added more strtol stuff. Replaced printing to stderr with DIE statements. Wrote test scripts.
+10/3  00:30  1:00   Wrote documentation and ran test scripts
+10/3  15:00  1:30   Talked with Professor Eisenstat and cleaned code for submission
+10/4  12:00  0:30   Wrote documentation and cleaned style
+
+
+
+TOTAL time: 34:45
+
+It was difficult to deal with all of the edge cases. It took a lot of time to set up the data structures in this problem set properly, although once they were set up, the algorithm was relatively straightforward to implement. Pruning was the most difficult feature to implement and test, so it helped that this was at least partly built into the data structures I wrote. Keeping encode and decode synchronized was also difficult, and it helped that I added extensive logging to my pruning function and to encode and decode in general to debug the program when encode and decode got out of sync, especially when the –e or –p flags were specified. Debugging was difficult because the program was large and complicated and the test cases where bugs showed up tended to be rather large as well, which took relatively longer to run. It helped a lot to write scripts to run many tests in one run. Finally, there were instances where refactoring was necessary to pass parameters, and this took some time too.
+
+

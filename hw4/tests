@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+RUN="/usr/local/bin/valgrind -q --dsymutil=yes"
+$RUN ./Parse <<\END
+#a b c
+#a ; b & a ; c
+#(a ; b & c) & b ; c
+#(a || b ; c ;) && d ; e || z
+#a | b
+#a |& b | c
+#(A ; B &) | (C || D) && E
+< A B | C | D |& E > F
+A && B || C && D
+A ; B & C ; D || E
+(A ; B &) | (C || D) && E
+#< A B > D | C >& E <! D ; F << x
+END

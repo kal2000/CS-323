@@ -1,0 +1,68 @@
+			The Lempel-Ziv-Welch Algorithm
+
+Notation
+
+  Each string W in the table is represented by a pair (C,K), where K is the
+  last character in W and C is the location in the table of the prefix of W
+  that contains all but the last character.  By convention, the null string is
+  at location EMPTY; and the components of the pair in location I are denoted
+  by PREF(I) and CHAR(I).
+
+
+Compression
+
+  Initialize the string table to contain the pair (EMPTY,K) for each char K
+
+  C = EMPTY
+  While ((K = getchar()) != EOF)
+     If the pair (C,K) is in the table
+     Then
+	Set C = index of the pair (C,K) in the table
+     Else
+	Output code C
+	Insert the pair (C,K) into the table
+	Set C = index of the pair (EMPTY,K) in the table
+
+  Output code C (if C != EMPTY)
+
+
+Decompression
+
+  Initialize the string table to contain the pair (EMPTY,K) for each char K
+
+  oldC = EMPTY
+  While ((newC = C = getcode()) != EOF)
+     If C is an unknown code
+     Then
+	Push finalK onto Kstack
+	C = oldC
+
+     While PREF(C) != EMPTY
+	Push CHAR(C) onto Kstack
+	C = PREF(C)
+
+     finalK = CHAR(C)
+     putchar(finalK)
+
+     While Kstack is nonempty
+	Pop K off Kstack
+	putchar(K)
+
+     If oldC is not EMPTY
+	Insert the pair (oldC,finalK) into the table
+     oldC = newC
+
+
+Example (with EMPTY = 0)
+
+  Message:      a  b  a  b  c  b  a  b  a  b  a  a  a  a  a  a  a  ...
+  Encoding:     1  2     4  3     5        8  1    10       11     ...
+
+  String Table:
+    C PREF CHAR String    C PREF CHAR String    C PREF CHAR String    ...
+    1   0    a   a        5   2    a   ba       9   8    a   baba
+    2   0    b   b        6   4    c   abc     10   1    a   aa
+    3   0    c   c        7   3    b   cb      11  10    a   aaa
+    4   1    b   ab       8   5    b   bab     12  11    a   aaaa
+
+								CS-323-09/22/04

@@ -1,0 +1,1 @@
+This text is not in any tag; <A> this text is part of tag A; <B> this text is part of tags A and B; </B> <C> this text is part of tags A and C; <D> this text is part of tags A, C, and D; </D> this text is part of tags A and C; </C> this text is part of tag A; </A> and this text is not in any tag.

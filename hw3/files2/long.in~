@@ -1,0 +1,140 @@
+	       P R E L I M I N A R Y    S P E C I F I C A T I O N
+
+	       	        Due 2:00 AM, Tuesday, 16 October 2012
+
+CPSC 323   Homework #3   YAML: Yet Another Markup Language
+
+(20 points)  YAML: Yet Another Markup Language
+
+YAML is a simple markup language for presenting structured knowledge and a baby
+brother of HTML and XML.  A YAML document contains text and special tags that
+describe its structure.  The tags have the same general form as in XML or HTML:
+
+  <TAG_NAME> TEXT </TAG_NAME>
+
+where TAG_NAME may include any characters other than > and whitespace [but may
+not begin with a / for obvious reasons]; and TEXT may be any text other than <
+or > [but whitespace surrounding <TAG_NAME> and </TAG_NAME> is ignored].
+
+Examples:
+
+  VALID                         INVALID
+  <tag> text </tag>             <>tag> text </>tag>
+  <t/a/g> text </t/a/g>         </tag> text <//tag>
+  	       			 
+The TEXT field of a tag may contain other tags.  More formally, a parent tag
+may contain one or more properly nested child tags, which may include tags with
+the same name.  For example:
+
+  This text is not in any tag; <A> this text is part of tag A; <B> this text is
+  part of tags A and B; </B> <C> this text is part of tags A and C; <D> this
+  text is part of tags A, C, and D; </D> this text is part of tags A and C;
+  </C> this text is part of tag A; </A> and this text is not in any tag.
+
+Finally, to handle documents that contain the special characters < and >, YAML
+borrows the concept of HTML/XML entities:  The escape sequences &amp;, &lt;,
+and &gt; are transformed into &, <, and >, respectively, whenever they appear
+in a TEXT field (i.e., not in the name of a tag).
+
+When YAML prints the structure of the document, it outputs the names of the
+tags, each on a line by itself, in hierarchical order, from the beginning of
+the file to the end.  Every time a new nesting level is reached, another tab is
+added to the front of the line so that tags with the same parent appear at the
+same indentation level.
+
+YAML prints the text in the document with the same indentation.  [CAVEAT:  A
+tag may have many text sections interspersed with other child tags.  The order
+of this text must be the same as in the original file.]  When the indentation
+level of text changes, a newline is printed, to give the output a nice "tabbed"
+structure.
+
+The document structure is preceded by a header line; the document text is
+preceded by a blank line and a header line.  The output for the YAML document
+above is
+
+  Document Structure
+  A
+    B
+      C
+	  D
+   
+  Document Text
+  This text is not in any tag;
+    this text is part of tag A;
+    	   this text is part of tags A and B;
+	   	  this text is part of tags A and C;
+		       	      this text is part of tags A, C, and D;
+			      	     this text is part of tags A and C;
+				       this text is part of tag A;
+  and this text is not in any tag.
+
+Write a Perl or Python script
+
+  YAML filename [-TAG]
+
+to verify that a YAML document is correctly marked (i.e., all tags are valid
+and properly nested) and to print both the structure and the text.  When the
+-TAG flag is specified, YAML only prints out the parts of the document that
+were originally included within a tag of that name (if any).  If a document
+contains multiple tags with that name, all are printed.
+
+Examples (when no -TAG is specified)
+
+  INPUT                         Document Structure      Document Text
+  ~~~~~                         ~~~~~~~~~~~~~~~~~~      ~~~~~~~~~~~~~
+  a                                                     a
+
+  a<A>b</A>c                    A                       a
+												b
+															   c
+
+  <A>a<B>b</B>c</A>             A                               a
+										B                               b
+															     c
+
+  <A>a<B>b</B>c<C>d</C>e</A>    A                               a
+										B                               b
+															  C                       c
+															  			         d
+																			        e
+																				        
+  <A>a<A>b</A></A><A>c</A>      A                               a
+										A                               b
+															 A                               c
+															 				   
+Examples (when -A is specified; blank lines suppressed):
+
+  INPUT                         Document Structure      Document Text
+  ~~~~~                         ~~~~~~~~~~~~~~~~~~      ~~~~~~~~~~~~~
+  <A>a<B>b</B>c</A>             A                               a
+										B                               b
+															     c
+															             
+  <B>a<A>b</A>c<C>d</C>e</B>            A                               b
+
+  <B>a<A>b</A><A>c</A>d</B>             A                               b
+											A                               c
+															  
+
+Use the submit command to turn in your source and log files as assignment 2b.
+
+YOU MUST SUBMIT YOUR FILES (INCLUDING THE LOG FILE) AT THE END OF ANY SESSION
+WHERE YOU SPEND AT LEAST ONE HOUR WRITING OR DEBUGGING CODE, AND AT LEAST ONCE
+EVERY THREE HOURS DURING LONGER SESSIONS.  (All submissions are retained.)
+
+
+Notes:
+
+1. When errors are detected, YAML writes a one-line error message to stderr and
+   exits.  Errors include:
+   * invalid number of command-line arguments [optional; not tested]
+   * unreadable files [optional; not tested]
+   * invalid -TAG argument
+   * documents containing invalid YAML
+   * no output when a -TAG flag is specified [optional; not tested].
+
+2. YAML converts every whitespace character in the input file (including
+   newlines) to a single blank.
+
+3. The -TAG option will be worth at most 10 points.
+       	    	   	   	    CS-323-10/02/12

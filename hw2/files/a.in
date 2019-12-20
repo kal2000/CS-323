@@ -1,0 +1,1 @@
+encode reads a stream of characters from the standard input, compresses it using the Lempel-Ziv-Welch algorithm, and writes the stream of codes to the standard output as a stream of bits packed into 8-bit bytes.  decode reads from the standard input a byte stream written by encode, decompresses the stream of codes, and writes the stream of characters to the standard output.

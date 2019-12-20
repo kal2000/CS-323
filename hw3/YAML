@@ -1,0 +1,206 @@
+#!/usr/bin/env python
+
+# Kevin Lai 10/14/12
+#
+# Verifies that YAML document is correctly marked and prints out the structure and text
+# of the document
+#
+# usage: YAML filename [-TAG]
+#
+# Only works on files that are small enough to be read entirely into memory
+
+import re
+import sys
+
+tagStack = []
+docStruct = "" #keep track of document structure to print at end
+docText = "" #keep track of document text to print at end
+tagName = re.compile("^[^/>\s][^>\s]*>") #matches proper tag names with > at end
+tagCount = 0 #keeps track of number of times tag argument tag has been found
+tagFlag = False #keeps track of whether tag argument set
+
+#prints usage help message and exits
+def usageHelp():
+	sys.stderr.write("usage: YAML filename [-TAG]\n")
+	sys.exit()
+
+#prints tag error message and tag and exits	
+def tagHelp(tag):
+	sys.stderr.write("YAML: invalid TAG " + tag + "\n")
+	sys.exit()	
+
+#prints generic error message and exits		
+def genericError():
+	sys.stderr.write("Error reading YAML\n")
+	sys.exit()
+	
+#prints invalid YAML error message and remainder of text and exits	
+def invalidYAML(text):
+	sys.stderr.write("YAML: invalid YAML: " + text + "\n")
+	sys.exit()
+
+#prints unmatched tag error message and exits	
+def unmatchedYAML():
+	sys.stderr.write("YAML: unmatched <" + tagStack.pop() + ">\n")
+	sys.exit()
+
+#verifies if TAG is properly formatted
+#return -1 if start tag, 1 if end tag, 0 if not valid
+def verifyTag(tag):
+	x = re.search("[<>]", tag[1:-1])
+	if x:
+		return 0
+	if tag[1] != "/":
+		x = re.match(tagName, tag[1:])
+		if x:
+			return -1
+		else:
+			return 0
+	else:
+		x = re.match(tagName, tag[2:])
+		if x:
+			return 1
+		else:
+			return 0
+			
+#pushes TAG onto the tagStack
+def pushStack(tag):
+	tagStack.append(tag)
+	return True
+
+#pops from the tagStack and returns true if the popped value is equal to TAG and
+#the list is nonempty
+def popStack(tag):
+	if len(tagStack) == 0:
+		return False
+	elif(tag != tagStack.pop()):
+		return False
+	else:
+		return True
+
+#verifies TAG and adds lines to docStruct if appropriate
+#returns true if no errors occur
+def handleTag(tag):
+	x = verifyTag(tag)
+	global docStruct, tagCount
+	if (x == -1):
+		if tagFlag:
+			if tag == argTag:
+				tagCount += 1
+			if tagCount > 0:
+				docStruct += "\t"*len(tagStack) + tag[1:-1] + "\n"
+		else:
+			docStruct += "\t"*len(tagStack) + tag[1:-1] + "\n"
+		return pushStack(tag[1:-1])
+	elif (x == 1):
+		if tagFlag and tag[2:-1] == argTag[1:-1]:
+			tagCount -= 1
+		return popStack(tag[2:-1])
+	else:
+		return False
+
+#strips whitespace at the beginning and end of TEXT and adds TEXT to docText with
+#appropriate tabbing. If tagFlag is specified, then will only add TEXT if it is within
+#the command-line-specified tag
+#Returns -1 if the text was handled properly, else returns the index of the part of the
+#text that was improperly formatted
+def handleText(text):
+	global docText	
+	while True:
+		x = re.match("[\s]", text)
+		if x:
+			text = text[1:]
+		else:
+			x = re.search("[\s]\Z", text)
+			if x:
+				text = text[:-1]
+			else:
+				break
+	#Make sure text has no < or >
+	x = re.search("[<>]", text)
+	if x:
+		return x.start()
+	if len(text) == 0: #Don't print if no text
+		return -1
+	#replace special chars, with ampersand last
+	text = re.sub("&lt;", "<", text)
+	text = re.sub("&gt;", ">", text)
+	text = re.sub("&amp;", "&", text)
+		
+	if tagFlag:
+		if tagCount > 0:
+			docText += "\t"*len(tagStack) + text + "\n"
+	else:
+		docText += "\t"*len(tagStack) + text + "\n"
+	return -1
+
+###########################################################################
+###########################    MAIN CODE     ##############################
+###########################################################################
+
+if len(sys.argv) < 2: #ensure that a filename is specified
+	usageHelp()
+
+#manage filename argument
+try:
+	f = open(sys.argv[1], "r")
+except:
+	sys.stderr.write(sys.argv[1] + " is not readable\n")
+	sys.exit()
+
+#Assume file is small enough to read into memory
+doc = f.read()
+
+#handle tag argument
+if len(sys.argv) >= 3:
+	try:
+		assert sys.argv[2][0] == "-"
+		argTag = "<" + sys.argv[2][1:] + ">"
+		assert verifyTag(argTag) == -1
+		tagFlag = True
+	except:
+		tagHelp(sys.argv[2])
+
+#replace all whitespace with blanks
+doc = re.sub("\s"," ",doc)
+
+curind = 0 #index within the document
+while True:
+	#search for a '<'
+	lt = re.search("<", doc[curind:])
+	if not lt: #handle remaining text in document
+		x = handleText(doc[curind:])
+		if x != -1:
+			invalidYAML(doc[curind+x:])
+		break
+	
+	leftIndex = lt.start() + curind
+	
+	x = handleText(doc[curind:leftIndex])
+	if x != -1: #handle text before '<'
+		invalidYAML(doc[curind+x:])
+	
+	gt = re.search(">", doc[leftIndex:])
+	if not gt:
+		invalidYAML(doc[curind:])
+	
+	rightIndex = gt.end() + leftIndex
+
+	tag = doc[leftIndex:rightIndex]
+
+	#verify that the tag is a proper TAG_NAME
+	if not handleTag(tag):
+		invalidYAML(doc[leftIndex:])
+	
+	curind = rightIndex
+
+#check that there are no unmatched tags at the end
+if len(tagStack) != 0:
+	unmatchedYAML()
+
+#Print docStruct and docText
+print "Document Structure"
+print docStruct
+print "Document Text"
+if len(docText) != 0:
+	sys.stdout.write(docText)

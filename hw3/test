@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+numPass=0
+numTests=0
+stanOut="./tempStanStdout.out"
+stanError="./tempStanStderr.out"
+myOut="./tempStdout.out"
+myError="./tempStderr.out"
+tempFile="./tempFile.out"
+tempFile2="./tempFile2.out"
+usageFile="./files/usage.out"
+logFile="./testYAML.log"
+RUN="./YAML"
+SRUN="/c/cs323/Hwk3/YAML"
+FILES="./files/*"
+
+
+if [[ ! -z $1 ]]
+then
+	FILES=$1"/*"
+fi
+
+date > $logFile
+
+function testEmpty {
+	numTests=$[numTests+1]
+	if [[ -z $1 ]]
+	then
+		#echo "Passed test" $numTests
+		numPass=$[numPass+1]
+	else
+		echo "Failed test" $numTests
+		echo "Failed test" $numTests >> $logFile
+		printf '%s ' "$@" >> $logFile
+		echo "" >> $logFile
+		echo "Stan Stdout" >> $logFile
+		cat $stanOut >> $logFile
+		echo "My Stdout" >> $logFile
+		cat $myOut >> $logFile
+		echo "Stan Stderr" >> $logFile
+		cat $stanError >> $logFile
+		echo "My Stderr" >> $logFile
+		cat $myError >> $logFile
+		echo "Line count of stderr" >> $logFile
+		cat $tempFile >> $logFile
+		cat $tempFile2 >> $logFile
+		echo "" >> $logFile
+	fi
+}
+
+function usageTest {
+	if [[ $# > 0 ]]
+	then
+		testEmpty `$RUN | cmp - $usageFile`
+	else
+		testEmpty `$RUN $1 | cmp - $usageFile`
+	fi
+}
+
+####################################################################################
+
+for f in $FILES
+do
+	echo Test $[numTests+1] : File is $f
+	$SRUN $f 1> $stanOut 2> $stanError
+	$RUN $f 1> $myOut 2> $myError
+	testEmpty `diff $myOut $stanOut`
+	
+	echo Test $[numTests+1] : File is $f
+	awk 'END{print NR}' < $stanError > $tempFile
+	awk 'END{print NR}' < $myError > $tempFile2
+	testEmpty `diff $tempFile $tempFile2`
+	
+done
+#function aasdf {
+for f in $FILES
+do
+	for arg in "" "-a" "-b" "-p" "-" "as" "a>"
+	do
+		echo Test $[numTests+1] : File is $f and arg is $arg
+		$SRUN $f $arg 1> $stanOut 2> $stanError
+		$RUN $f $arg 1> $myOut 2> $myError
+		testEmpty `diff $myOut $stanOut`
+		
+		echo Test $[numTests+1] : File is $f and arg is $arg
+		awk 'END{print NR}' < $stanError > $tempFile
+		awk 'END{print NR}' < $myError > $tempFile2
+		testEmpty `diff $tempFile $tempFile2`
+	done
+done
+#}
+
+#for arg in ""
+#do
+#	$SRUN $arg > $tempFile
+#	testEmpty `$RUN $arg | cmp - $tempFile`
+#done
+
+echo Passed $numPass / $numTests tests

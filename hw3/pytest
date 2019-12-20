@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+import sh
+import subprocess
+from sh import cmp, ls
+
+numTests=0
+numPass=0
+prog = "./YAML"
+
+def testEmpty(inp):
+	global numTests, numPass
+	numTests += 1
+	if len(inp) == 0:
+		numPass += 1
+		print "Passed test " + str(numTests)
+	else:
+		print "Failed test " + str(numTests) + ": " + inp
+
+print sh.wc("-l", prog)
+#testEmpty(prog)
+#testEmpty(prog + " ")
+#testEmpty(prog + " ")
+#testEmpty(prog + " ")
+
+
+print "Passed " + str(numPass) + " / " + str(numTests) + " tests"
+
+

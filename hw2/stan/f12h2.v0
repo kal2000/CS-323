@@ -1,0 +1,414 @@
+	       P R E L I M I N A R Y    S P E C I F I C A T I O N
+
+					   Due 2:00 AM, Friday, 05 October 2012
+
+CPSC 323   Homework #2   An Ounce of Compression
+
+(60 points) Write file compression and decompression filters:
+
+      encode [-m MAXBITS] [-p WINDOW] [-e]
+
+      decode
+
+encode reads a stream of characters from the standard input, compresses it
+using the Lempel-Ziv-Welch algorithm, and writes the stream of codes to the
+standard output as a stream of bits packed into 8-bit bytes.  decode reads
+from the standard input a byte stream written by encode, decompresses the
+stream of codes, and writes the stream of characters to the standard output.
+
+encode and decode are a single program (i.e., they are hard links to the same
+file) whose behavior is determined by the name by which it is invoked (i.e.,
+the 0-th command-line argument).  Flags may appear in any order and any number
+of times; the last occurrence supersedes any earlier ones.
+
+encode writes codes using the number of bits required to specify valid codes
+at the time (e.g., 9 bits when there are 512 valid codes, but 10 bits once the
+next code is assigned), up to a maximum of 12 bits (or MAXBITS if the -m flag
+is specified).  In effect, this limit specifies the (maximum) size of the
+string table.
+
+When the string table is full, the default is to stop adding codes.  However,
+with the pruning option -p WINDOW, encode instead creates a new string table
+containing
+
+* Every one-character string (unless the -e option is specified; see below).
+
+* Every code that was one of the last WINDOW codes to be used (i.e., output by
+  encode or input by decode).
+
+* Every nonempty prefix of a code in the table.
+
+Normally the string table is initialized to contain all one-character strings.
+However, with the escape option -e, the table is initialized with only the
+empty string; and when a character appears in the input for the first time,
+it is sent as an escape code followed by the character (using 8 bits, where
+8 = CHAR_BIT in <limits.h>).
+
+Use the submit command to turn in your log file (see Homework #1) and the
+source files for encode/decode (including a Makefile) as assignment 2.
+
+YOU MUST SUBMIT YOUR FILES (INCLUDING THE LOG FILE) AT THE END OF ANY SESSION
+WHERE YOU HAVE SPENT AT LEAST ONE HOUR WRITING OR DEBUGGING CODE, AND AT LEAST
+ONCE EVERY THREE HOURS DURING LONGER SESSIONS.  (All submissions are retained.)
+
+
+Notes:
+
+1. encode and decode should write a one-line message to stderr and exit when
+   an invalid option is specified.  decode should do so when it detects a file
+   that encode could not have generated.  In particular, encode must detect
+   when MAXBITS or WINDOW is not a positive integer.  Hint: Use strtol().
+
+2. If MAXBITS <= 8 (= CHAR_BIT in <limits.h>) or 24 < MAXBITS (= 3 * CHAR_BIT),
+   then encode replaces MAXBITS by 12.
+
+3. Note that the -m, -p, and -e flags are omitted for decode since this is more
+   convenient for the user.  (What would happen if you forgot MAXBITS for a
+   particular compressed file?) Thus this information must be encoded in the
+   compressed file.  For example, to represent MAXBITS:
+
+   a. The first byte could contain the maximum code size.
+
+   b. A special code (e.g., 0 or 111...111) could be used to indicate that
+      the code size should be increased.
+
+   Or you could use both.  This flexibility in the compressed form must be
+   documented in your program.
+
+4. The string table consists of (CODE, PREFIX, CHAR) triples.  Decode must find
+   (PREFIX, CHAR) given CODE, which is implemented most easily using an array.
+   On the other hand, encode must find CODE given (PREFIX, CHAR).  Linear
+   search would be prohibitively expensive, so it must use a more elaborate
+   data structure---hashing with linear probing.
+
+   The size of the hash table should be roughly 2 to the MAXBITS+1 power to
+   ensure good performance.  One possible hash function is
+
+     HASH(p, k) = ((unsigned)(p) << CHAR_BIT | (unsigned) (k)) % SIZE
+
+   where SIZE is the size of the table.  But if SIZE is a power of 2, then
+   HASH(P,K) ignores the higher-order bits of P, which is probably a bad idea.
+   Making SIZE one larger or smaller should significantly improve this
+   situation.  Or you can use /usr/games/primes to generate a set of possible
+   sizes.
+
+   Since decode only needs the array and encode only needs the hash table,
+   you could maintain separate data structures.  However, there is a certain
+   economy in implementing one data structure that overlays both array and hash
+   table access on the same set of triples.
+
+5. When pruning you must assign new codes.  Otherwise even if the number of
+   valid codes in the table were reduced significantly, the number of bits
+   needed to send a code might not be.  (For example, suppose that code 4000 is
+   kept but there are only 400 codes in the table.  Then you need 12 bits to
+   send 4000, but would only have needed 9 bits had you renumbered.)
+
+   Moreover, after pruning the last code sent/received may no longer be valid,
+   so you may have/want to skip adding the new (PREF,CHAR) pair to the table.
+
+   Suppose that string S is represented by the (prefix,character) pair (P,K) in
+   the old table.  Unless P corresponds to the empty string (i.e., S is a
+   one-character string) and the -E flag is off, it is extremely unlikely that
+   (P,K) will represent S in the new table.  Similarly, if P is represented by
+   (P',K') in the old table, it is very unlikely that P will be represented by
+   (P',K') in the new one.  Thus you may find it useful to create a mapping of
+   old code values to new code values during the pruning phase.
+
+   If you prune the table immediately after using the last empty slot, then
+   everything works.  However, if you wait until the next insertion is in
+   progress, then the situation can get quite complicated.  In particular, if
+   the prefix of the code to be inserted is not in the table, then inserting it
+   later on could cause an error.  Thus you may either:
+
+   1) Prune as soon as the last empty slot is taken.
+
+   2) Prune when there is no room for the latest code, in which case you may
+      either not insert this code or insert it only if its prefix was not
+      pruned.
+
+6. Your solution may incorporate any of the following files:
+
+     Hwk2/code.h    Header file defining putBits() and getBits()
+     Hwk2/code.c    Implementation of putBits() and getBits()
+     Hwk2/code1.c   Stage 1 version of putBits() and getBits() (see Hint #1)
+     Hwk2/code2.c   Stage 2 version of putBits() and getBits() (see Hint #1)
+
+   However, unless you modify these files, your Makefile and sources must
+   reference the originals; e.g.,
+
+     #include "/c/cs323/Hwk2/code.h"
+
+   rather than
+
+     #include "code.h"
+
+   When the environment variable DBG is set, Hwk2/encode and Hwk2/decode use
+   the codbg.c version of putBits() and getBits() and dump the table to the
+   file DBG.encode or DBG.decode.  You may find this useful when debugging.
+
+7. encode should handle both text and binary files (i.e., stdin may contain any
+   of the 256 possible byte values, including the null character '\0').
+
+8. Do NOT use the pow() function; use the shift operator << instead.
+
+9. The degree of LZW compression (that is, the precise length of the output
+   from encode) depends on the file, the command-line arguments and how they
+   are represented, and the number of special codes (e.g., EMPTY, INCR_NBITS,
+   RESET, ESCAPE).  Indeed, the compressed file can be larger than the original
+   in some cases.  Thus all tests of size will be in comparison with that given
+   by Hwk2/encode (which the scripts assume is a correct implementation of LZW)
+   and will be relatively loose.
+
+A. The following capabilities will be worth at most the number of points shown
+   below (these values include some tests that require both functionalities):
+
+   * (12 points) handling binary files
+
+   * (20 points) increasing the code size from 9 to MAXBITS bits (vs. always
+     using MAXBITS bits)
+
+   * (12 points) implementing the -p WINDOW option
+
+   * ( 8 points) implementing the -e option
+
+
+Hints on Encode/Decode
+~~~~~~~~~~~~~~~~~~~~~~
+
+1. It is MUCH easier to write the core of encode/decode in three stages:
+
+   Stage 1: encode outputs the codes as ASCII integers, one per line (e.g.,
+     using printf()), and decode inputs the codes in the same format; the
+     number of bits per code is ignored [see Hwk2/code1.c].
+
+   Stage 2: encode outputs the codes in the form NBITS:CODE, where NBITS and
+     CODE are ASCII integers (e.g., 10:666), and decode inputs the codes in the
+     same format, checking that the number of bits expected agrees with NBITS
+     [see Hwk2/code2.c].
+
+   Stage 3: encode outputs the codes as a stream of bits, packed into chars,
+     and decode inputs the codes in the same format.
+
+   Since the "compressed" data is human-readable in Stages 1 and 2, they are
+   easier to debug.  Moreover, the first part of the test script will not check
+   the size of the output from encode so that the code from these stages should
+   be able to pass all such tests.
+
+   You may also want to start with Stage 0, where MAXBITS is 9 and linear
+   search replaces hashing.
+
+2. While the pseudo-code for decode uses a stack to output the string of
+   characters corresponding to a given code, it may be easier to use a
+   recursive function instead.
+
+3. Use int's rather than char's to hold character values, at least initially.
+   The increase in storage is minor, but experience suggests that the savings
+   in debugging time can be major.
+
+4. Since compression followed by decompression should reproduce the original,
+   the acid test for encode/decode is that
+
+	% encode < FILE | decode | cmp - FILE
+
+   does not produce output for any file FILE.  In this command
+
+   * encode reads bytes from FILE and compresses them into a sequence of codes
+     (that are written to its standard output);
+
+   * decode reads this sequence of codes and decompresses them into a sequence
+     of bytes (that are written to its standard output); and
+
+   * cmp reads this sequence of bytes and compares it to the contents of FILE,
+     printing a message only if it finds a discrepancy (shorter, longer, or
+     at least one character different).
+
+   "od -bc" and "cat -v -e -t" are two other useful commands for looking at
+   files.
+
+5. The primary difference between text files and binary files is that the
+   latter usually contain NUL characters (i.e., '\0').  Thus if your code works
+   on text files but not on binary files, you know where to start looking.
+
+6. The notes above give two schemes for keeping encode and decode synchronized
+   with respect to the number of bits per code (= NBITS).  The second adds a
+   few extra codes to the output (one for each increase in NBITS), but makes
+   it easier for decode to recognize when to increase NBITS.  Then again you
+   could use both schemes.
+
+7. It may be help to write scaffolding code to
+
+   * dump to a file the contents of the string table, with each line containing
+     a code, the corresponding (PREF,CHAR) pair, when it was used, and the
+     string (written as a sequence of integers, not chars, so that they are
+     visible) to which it corresponds.  You can use this function to compare
+     the tables produced by encode and decode, or to compare which strings are
+     in the table before and after pruning.
+
+   * verify that the table is consistent; for example, in each (PREF, CHAR)
+     pair, CHAR is a valid character and PREF is a valid code (or some other
+     special value).
+
+   * after inserting something in the hash table, search() for it immediately
+     (i.e., from within the insert() function) to verify that it can be found
+     where you inserted it.
+
+   * monitor the average search time (= the ratio of the total number of hash
+     cells visited within the search() function to the number of calls to the
+     search() function) and verify that it never gets too large.  Hint:  Use
+     assert() or a conditional fprintf(stderr,...) so as not to affect the
+     normal standard output.
+
+8. When encode sends a code, the number of bits depends on the number of
+   codes currently assigned, not the value of the code.  That is, whether
+   encode wanted to send 11 or 10 or 1110, it still would send at least four
+   bits (0011 or 0010 or 1110).  decode knows how big the table is, so it
+   can deduce how many bits that encode sent.
+
+9. There are some subtle bugs associated with pruning.
+
+   * Suppose that you use an array RECENT to hold the most recently sent WINDOW
+     codes.  When you prune the table, it seems natural to change all entries
+     in RECENT back to UNSET.  However, this may not work!
+
+     Assume that WINDOW = 8000 and that MAXBITS = 12 (i.e., MAXCODES = 4096).
+     Then the first pruning in encode will occur after ~3840 (= 4096 - 256 -
+     #specials) codes have been sent.
+
+     Assume that 2000 codes remain after the first pruning.  Then the second
+     pruning will take place after another 2096 (= 4096 - 2000) codes are sent;
+     i.e., after a total of ~5936 (= ~3840 + 2096) codes have been sent.
+
+     Assume that you change all entries in RECENT after each pruning.  Consider
+     a code sent at least once before the first pruning but never thereafter.
+     The associated string was retained by the first pruning and assigned a
+     new code, but that new code does not appear in RECENT.  Thus the string
+     will not be retained by the second pruning even though it lies within the
+     window (since ~5936 < 8000).
+
+     WARNING:  Leaving the entries in RECENT unchanged does not work either
+     since these values are codes that were assigned before the first pruning
+     and may not be valid after that pruning.  Thus you need to update them.
+
+   * Suppose that you store the time that each code was most recently sent or
+     received.  When you prune the table, it may seem natural to reset all of
+     the times back to 0, along with the timer.  However, this may not work!
+
+     Assume that WINDOW = 8000 and that MAXBITS = 12 (i.e., MAXCODES = 4096).
+     Then the first pruning in encode will occur after ~3840 (= 4096 - 256 -
+     #specials) codes have been sent.
+
+     Assume that 2000 codes remain after the first pruning.  Then the second
+     pruning will take place after another 2096 (= 4096 - 2000) codes are sent;
+     i.e., after a total of ~5936 (= ~3840 + 2096) codes have been sent.
+
+     Assume that you reset all use times (of codes that are retained) back to 0
+     after each pruning.  Consider a code sent at least once before the first
+     pruning but never thereafter.  The associated string was retained by the
+     first pruning and assigned a new code, but that new code will appear as if
+     it was never sent (as does any code with a use count of 0).  Thus that
+     string will not be retained by the second pruning even though it lies
+     within the window (since ~5936 < 8000).
+
+     Instead you must retain the latest-use-time associated with each string
+     that is not pruned, and let the timer continue its count of codes sent.
+
+								CS-323-09/16/12
+
+General Statement on Collaboration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Programming, like composition, is an individual creative process in which you
+  must reach your own understanding of the problem and discover a path to its
+  solution.  During this time, discussions with others (including the instruc-
+  tional staff) are encouraged.  (But see the Gilligan's Island Rule below.)
+
+  However, when the time comes to write code, such discussions are no longer
+  appropriate---the program must be your own personal inspiration (although
+  you may ask the instructional staff for help in writing and debugging).
+
+  Since code reuse is an important part of programming, you may incorporate
+  published code (e.g., from text books or the net) in your programs, provided
+  you give proper attribution AND THE BULK OF THE CODE SUBMITTED IS YOUR OWN.
+
+  DO NOT UNDER ANY CIRCUMSTANCES COPY ANOTHER PERSON'S CODE---to do so is a
+  clear violation of ethical/academic standards that, when discovered, will be
+  referred to the Executive Committee of Yale College for disciplinary action.
+  Modifying code to conceal copying only compounds the offense.
+
+The Gilligan's Island Rule
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+  When discussing an assignment with other students, you may write on a board
+  or a piece of paper, but you may not take any written or electronic record
+  away from the discussion.  Moreover, you must engage in a full hour of mind-
+  numbing activity (e.g., watching back-to-back episodes of Gilligan's Island)
+  before you work on the assignment again.  This will ensure that you can
+  reconstruct what you learned from the discussion, by yourself, using your own
+  brain.
+
+                      The Lempel-Ziv-Welch Algorithm
+
+Notation
+
+  Each string W in the table is represented by a pair (C,K), where K is the
+  last character in W and C is the location in the table of the prefix of W
+  that contains all but the last character.  By convention, the null string is
+  at location EMPTY; and the components of the pair in location I are denoted
+  by PREF(I) and CHAR(I).
+
+
+Compression
+
+  Initialize the string table to contain the pair (EMPTY,K) for each char K
+
+  C = EMPTY
+  While ((K = getchar()) != EOF)
+     If the pair (C,K) is in the table
+     Then
+	Set C = index of the pair (C,K) in the table
+     Else
+	Output code C
+	Insert the pair (C,K) into the table
+	Set C = index of the pair (EMPTY,K) in the table
+
+  Output code C (if C != EMPTY)
+
+
+Decompression
+
+  Initialize the string table to contain the pair (EMPTY,K) for each char K
+
+  oldC = EMPTY
+  While ((newC = C = getcode()) != EOF)
+     If C is an unknown code
+     Then
+	Push finalK onto Kstack
+	C = oldC
+
+     While PREF(C) != EMPTY
+	Push CHAR(C) onto Kstack
+	C = PREF(C)
+
+     finalK = CHAR(C)
+     putchar(finalK)
+
+     While Kstack is nonempty
+	Pop K off Kstack
+	putchar(K)
+
+     If oldC is not EMPTY
+	Insert the pair (oldC,finalK) into the table
+     oldC = newC
+
+
+Example (with EMPTY = 0)
+
+  Message:      a  b  a  b  c  b  a  b  a  b  a  a  a  a  a  a  a  ...
+  Encoding:     1  2     4  3     5        8  1    10       11     ...
+
+  String Table:
+    C PREF CHAR String    C PREF CHAR String    C PREF CHAR String    ...
+    1   0    a   a        5   2    a   ba       9   8    a   baba
+    2   0    b   b        6   4    c   abc     10   1    a   aa
+    3   0    c   c        7   3    b   cb      11  10    a   aaa
+    4   1    b   ab       8   5    b   bab     12  11    a   aaaa
+
+								CS-323-09/22/04

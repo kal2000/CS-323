@@ -1,0 +1,10 @@
+ESTIMATE of time to complete assignment: 10 hours
+
+10/13	0:00	2:00	Played around with python
+10/13	13:00	5:00	Parsed arguments and wrote bash test scripts. Implemented regex searching.
+10/13	21:30	3:00	Changed dictionary to stack implemented with list. Fixed bash scripts. Dealt with tag flag.
+10/14	14:30	1:00	Wrote further tests for YAML
+
+TOTAL time: 11 hours 
+
+The most difficult part of this assignment was to find what methods I wanted to use in python and to figure out exactly how they were used. For instance, when using regular expressions, I had to make sure that the strings I was searching for would match exactly what I wanted and nothing more or less. In other cases, I had to spend extra effort to make sure that I had the desired behavior in various edge cases for the functions I was using. Finally, for some reason my computer kept having kernel panics when I tried to use the subprocess module, so that slowed down writing test scripts. Eventually, I just wrote all the test scripts in bash.

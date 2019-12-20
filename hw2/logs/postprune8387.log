@@ -1,0 +1,33 @@
+
+Printing code table
+   0 | p = 0     | k = -1    | code = 0 | lastUse = 0
+   1 | p = 0     | k = -2    | code = 1 | lastUse = 0
+   2 | p = 0     | k = -3    | code = 2 | lastUse = 0
+   3 | p = 0     | k = -4    | code = 3 | lastUse = 8386
+   4 | p = 0     | k = -5    | code = 4 | lastUse = 0
+   5 | p = 0     | k = 100   | code = 5 | lastUse = 8385
+   6 | p = 0     | k = 99    | code = 6 | lastUse = 0
+   7 | p = 6     | k = 104   | code = 7 | lastUse = 0
+   8 | p = 7     | k = 32    | code = 8 | lastUse = 8382
+   9 | p = 0     | k = 226   | code = 9 | lastUse = 8387
+  10 | p = 0     | k = 101   | code = 10 | lastUse = 0
+  11 | p = 10    | k = 114   | code = 11 | lastUse = 0
+  12 | p = 11    | k = 101   | code = 12 | lastUse = 0
+  13 | p = 12    | k = 32    | code = 13 | lastUse = 8379
+  14 | p = 0     | k = 115   | code = 14 | lastUse = 0
+  15 | p = 14    | k = 32    | code = 15 | lastUse = 0
+  16 | p = 15    | k = 119   | code = 16 | lastUse = 8378
+  17 | p = 10    | k = 120   | code = 17 | lastUse = 0
+  18 | p = 17    | k = 112   | code = 18 | lastUse = 8383
+  19 | p = 0     | k = 109   | code = 19 | lastUse = 0
+  20 | p = 19    | k = 117   | code = 20 | lastUse = 8381
+  21 | p = 0     | k = 118   | code = 21 | lastUse = 0
+  22 | p = 21    | k = 101   | code = 22 | lastUse = 0
+  23 | p = 22    | k = 114   | code = 23 | lastUse = 0
+  24 | p = 23    | k = 121   | code = 24 | lastUse = 0
+  25 | p = 24    | k = 32    | code = 25 | lastUse = 8380
+  26 | p = 0     | k = 111   | code = 26 | lastUse = 0
+  27 | p = 26    | k = 115   | code = 27 | lastUse = 0
+  28 | p = 27    | k = 101   | code = 28 | lastUse = 8384
+numEntries = 29 | numBits = 5 | MaxCode = 4095
+

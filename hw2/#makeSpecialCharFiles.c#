@@ -1,0 +1,10 @@
+v#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+  FILE *file
+  fopen("./files/",'w');
+
+  return 0;
+}
